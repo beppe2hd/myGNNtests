@@ -1,0 +1,5 @@
+name: GNNtestEnv
+dependencies:
+  - python=3.10
+  - pandas
+  - matplotlib
