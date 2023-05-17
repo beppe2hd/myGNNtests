@@ -78,10 +78,21 @@ model = GCN(hidden_channels=16)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
 criterion = torch.nn.CrossEntropyLoss()
 
+if torch.cuda.is_available():
+    device = "cuda"
+elif torch.backends.mps.is_available():
+    device = "mps"
+else:
+    device = "cpu"
+
+model.to(device)
+data.to(device)
+print(device)
 def train():
       model.train()
 
       for sub_data in train_loader:  # Iterate over each mini-batch.
+          sub_data.to(device)
           out = model(sub_data.x, sub_data.edge_index)  # Perform a single forward pass.
           loss = criterion(out[sub_data.train_mask], sub_data.y[sub_data.train_mask])  # Compute the loss solely based on the training nodes.
           loss.backward()  # Derive gradients.
