@@ -182,6 +182,7 @@ def train():
 
     total_examples = total_loss = 0
     for batch in tqdm(train_loader):
+        batch.to(device)
         optimizer.zero_grad()
         batch = batch.to('cpu')
         batch_size = batch['paper'].batch_size
@@ -215,10 +216,19 @@ criterion = torch.nn.CrossEntropyLoss()  # Define loss criterion.
 #    print(f"Current losso is: {loss}")
 numofep=100
 
+if torch.cuda.is_available():
+    device = "cuda"
+#elif torch.backends.mps.is_available():
+#    device = "mps"
+else:
+    device = "cpu"
+
+
 ## model_HeteroGNN
 loss_HeteroGNN_changinglayer=[]
 model= HeteroGNN_changinglayer(hidden_channels=64, out_channels=num_of_class)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)  # Define optimizer.
+model.to(device)
 for i in range(1,numofep):
     print(f"Epoch {i}")
     loss = train()
@@ -228,6 +238,7 @@ for i in range(1,numofep):
 loss_HeteroGNN_replicatedlayerConf=[]
 model= HeteroGNN_replicatedlayerConf(hidden_channels=64, out_channels=num_of_class)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)  # Define optimizer.
+model.to(device)
 for i in range(1,numofep):
     print(f"Epoch {i}")
     loss = train()
@@ -237,6 +248,7 @@ for i in range(1,numofep):
 loss_HeteroGNN_iterativeLayer=[]
 model= HeteroGNN_iterativeLayer(hidden_channels=64, out_channels=num_of_class, num_layers=2)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)  # Define optimizer.
+model.to(device)
 for i in range(1,numofep):
     print(f"Epoch {i}")
     loss = train()
@@ -246,6 +258,7 @@ for i in range(1,numofep):
 loss_HGT_iterative=[]
 model = HGT_iterative(hidden_channels=64, out_channels=num_of_class, num_heads=2, num_layers=2)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)  # Define optimizer.
+model.to(device)
 for i in range(1,numofep):
     print(f"Epoch {i}")
     loss = train()
@@ -255,6 +268,7 @@ for i in range(1,numofep):
 loss_HGT_fixed=[]
 model = HGT_fixed(hidden_channels=64, out_channels=num_of_class, num_heads=2)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)  # Define optimizer.
+model.to(device)
 for i in range(1,numofep):
     print(f"Epoch {i}")
     loss = train()
