@@ -9,11 +9,16 @@ from torch_geometric.datasets import OGB_MAG
 from torch_geometric.loader import NeighborLoader
 from torch_geometric.nn import SAGEConv, GATConv, Linear, HGTConv, HeteroConv, GCNConv, to_hetero
 
+if torch.cuda.is_available():
+    device = "cuda"
+#elif torch.backends.mps.is_available():
+#    device = "mps"
+else:
+    device = "cpu"
 
 dataset = OGB_MAG(root='./data', preprocess='metapath2vec', transform=T.ToUndirected())
 data = dataset[0]
 num_of_class = dataset.num_classes
-
 
 class GNN(torch.nn.Module):
     def __init__(self, hidden_channels, out_channels):
@@ -115,7 +120,6 @@ class HeteroGNN_iterativeLayer(torch.nn.Module):
             x_dict = {key: x.relu() for key, x in x_dict.items()}
         return self.lin(x_dict['paper'])
 
-
 class HGT_fixed(torch.nn.Module):
     def __init__(self, hidden_channels, out_channels, num_heads, num_layers):
         super().__init__()
@@ -183,8 +187,8 @@ def train():
     total_examples = total_loss = 0
     for batch in tqdm(train_loader):
         batch.to(device)
+        #model.to(device)
         optimizer.zero_grad()
-        batch = batch.to('cpu')
         batch_size = batch['paper'].batch_size
         out = model(batch.x_dict, batch.edge_index_dict)
         loss = criterion(out[:batch_size], batch['paper'].y[:batch_size])
@@ -215,13 +219,6 @@ criterion = torch.nn.CrossEntropyLoss()  # Define loss criterion.
 #    loss = train()
 #    print(f"Current losso is: {loss}")
 numofep=100
-
-if torch.cuda.is_available():
-    device = "cuda"
-#elif torch.backends.mps.is_available():
-#    device = "mps"
-else:
-    device = "cpu"
 
 
 ## model_HeteroGNN
