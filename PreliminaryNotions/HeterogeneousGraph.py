@@ -9,6 +9,15 @@ from torch_geometric.datasets import OGB_MAG
 from torch_geometric.loader import NeighborLoader
 from torch_geometric.nn import SAGEConv, GATConv, Linear, HGTConv, HeteroConv, GCNConv, to_hetero
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("-e", "--numofepoch", help="number of epoches", type=int,
+                    default = 5)
+args = parser.parse_args()
+numofep =  args.numofepoch
+print(f"Running on :{numofep}")
+
+
 if torch.cuda.is_available():
     device = "cuda"
 #elif torch.backends.mps.is_available():
@@ -218,7 +227,7 @@ criterion = torch.nn.CrossEntropyLoss()  # Define loss criterion.
 #for i in range(1,5):
 #    loss = train()
 #    print(f"Current losso is: {loss}")
-numofep=100
+
 
 
 ## model_HeteroGNN
