@@ -262,7 +262,7 @@ for i in range(1,numofep):
     loss_HeteroGNN_iterativeLayer.append(loss)
 
 loss_HGT_iterative=[]
-model = HGT_iterative(hidden_channels=64, out_channels=num_of_class, num_heads=2, num_layers=2)
+model = HGT_iterative(hidden_channels=64, out_channels=num_of_class, num_heads=2)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)  # Define optimizer.
 model.to(device)
 for i in range(1,numofep):
