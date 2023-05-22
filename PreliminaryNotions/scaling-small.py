@@ -71,7 +71,6 @@ class GCN(torch.nn.Module):
         return x
 
 
-
 if torch.cuda.is_available():
     device = "cuda"
 else:
@@ -82,37 +81,35 @@ data.to(device)
 numOfEpoch = 150
 
 
-def train():
+def trainMiniBatch():
       model.train()
 
       for sub_data in train_loader:  # Iterate over each mini-batch.
           sub_data.to(device)
-          out = model(sub_data.x, sub_data.edge_index)  # Perform a single forward pass.
-          loss = criterion(out[sub_data.train_mask], sub_data.y[sub_data.train_mask])  # Compute the loss solely based on the training nodes.
-          loss.backward()  # Derive gradients.
-          optimizer.step()  # Update parameters based on gradients.
-          optimizer.zero_grad()  # Clear gradients.
+          out = model(sub_data.x, sub_data.edge_index)
+          loss = criterion(out[sub_data.train_mask], sub_data.y[sub_data.train_mask])
+          loss.backward()
+          optimizer.step()
+          optimizer.zero_grad()
 
 
-def trainFUll():
+def trainFullBatch():
     model.train()
-
-    out = model(data.x, data.edge_index)  # Perform a single forward pass.
-    loss = criterion(out[data.train_mask],
-                     data.y[data.train_mask])  # Compute the loss solely based on the training nodes.
-    loss.backward()  # Derive gradients.
-    optimizer.step()  # Update parameters based on gradients.
-    optimizer.zero_grad()  # Clear gradients
+    # Work on the whole dataset
+    out = model(data.x, data.edge_index)
+    loss = criterion(out[data.train_mask], data.y[data.train_mask])
+    loss.backward()
+    optimizer.step()
+    optimizer.zero_grad()
 
 def test():
       model.eval()
       out = model(data.x, data.edge_index)
-      pred = out.argmax(dim=1)  # Use the class with highest probability.
-      
+      pred = out.argmax(dim=1)
       accs = []
       for mask in [data.train_mask, data.val_mask, data.test_mask]:
-          correct = pred[mask] == data.y[mask]  # Check against ground-truth labels.
-          accs.append(int(correct.sum()) / int(mask.sum()))  # Derive ratio of correct predictions.
+          correct = pred[mask] == data.y[mask]
+          accs.append(int(correct.sum()) / int(mask.sum()))
       return accs
 
 model = GCN(hidden_channels=16)
@@ -120,12 +117,12 @@ print(model)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
 criterion = torch.nn.CrossEntropyLoss()
 model.to(device)
-test_accuracy_partitioned = []
+test_accuracy_miniBatch = []
 for epoch in range(1, numOfEpoch):
-    loss = train()
+    loss = trainMiniBatch()
     train_acc, val_acc, test_acc = test()
     print(f'Epoch: {epoch:03d}, Train: {train_acc:.4f}, Val Acc: {val_acc:.4f}, Test Acc: {test_acc:.4f}')
-    test_accuracy_partitioned.append(test_acc)
+    test_accuracy_miniBatch.append(test_acc)
 
 
 del model
@@ -135,19 +132,19 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
 criterion = torch.nn.CrossEntropyLoss()
 model.to(device)
 
-test_accuracy_whole = []
+test_accuracy_fullBatch = []
 for epoch in range(1, numOfEpoch):
-    loss = trainFUll()
+    loss = trainFullBatch()
     train_acc, val_acc, test_acc = test()
     print(f'Epoch: {epoch:03d}, Train: {train_acc:.4f}, Val Acc: {val_acc:.4f}, Test Acc: {test_acc:.4f}')
-    test_accuracy_whole.append(test_acc)
+    test_accuracy_fullBatch.append(test_acc)
 
 
 import matplotlib.pyplot as plt
 
 # plot lines
-plt.plot(test_accuracy_partitioned, label="Accuracy Mini-Batch")
-plt.plot(test_accuracy_whole, label="Accuracy Full-Batch")
+plt.plot(test_accuracy_miniBatch, label="Accuracy Mini-Batch")
+plt.plot(test_accuracy_fullBatch, label="Accuracy Full-Batch")
 plt.legend()
 plt.savefig("test.png")
 
