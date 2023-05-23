@@ -158,7 +158,7 @@ class HGT_fixed(torch.nn.Module):
 #Out[1]: ['paper', 'author', 'institution', 'field_of_study']
 
 class HGT_iterative(torch.nn.Module):
-    def __init__(self, hidden_channels, hidden_channel2, hidden_channel3, out_channels, num_heads):
+    def __init__(self, hidden_channels, hidden_channels2, hidden_channels3, out_channels, num_heads):
         super().__init__()
 
         self.lin_paper = Linear(128, hidden_channels)
@@ -166,12 +166,12 @@ class HGT_iterative(torch.nn.Module):
         self.lin_institution = Linear(128, hidden_channels)
         self.lin_field_of_study = Linear(128, hidden_channels)
 
-        self.conv1 = HGTConv(hidden_channels, hidden_channel2, data.metadata(),
+        self.conv1 = HGTConv(hidden_channels, hidden_channels2, data.metadata(),
                        num_heads, group='sum')
-        self.conv2 = HGTConv(hidden_channel2, hidden_channel3, data.metadata(),
+        self.conv2 = HGTConv(hidden_channels2, hidden_channels3, data.metadata(),
                        num_heads, group='sum')
 
-        self.lin = Linear(hidden_channel3, out_channels)
+        self.lin = Linear(hidden_channels3, out_channels)
 
     def forward(self, x_dict, edge_index_dict):
         for node_type, x in x_dict.items():
