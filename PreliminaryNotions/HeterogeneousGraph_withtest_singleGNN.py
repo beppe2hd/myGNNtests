@@ -134,7 +134,7 @@ test_loader = NeighborLoader(
 
 criterion = torch.nn.CrossEntropyLoss()  # Define loss criterion.
 
-'''
+
 ## model_HeteroGNN
 loss_HeteroGNN = []
 acc_HeteroGNN = []
@@ -147,7 +147,7 @@ for i in range(1,numofep):
     print(f"Current losso is: {loss}")
     loss_HeteroGNN.append(loss)
     acc_HeteroGNN.append(test())
-'''
+
 loss_HGT = []
 acc_HGT = []
 model= HGT(hidden_channels=64, out_channels=num_of_class, num_heads=4, num_layers=4)
