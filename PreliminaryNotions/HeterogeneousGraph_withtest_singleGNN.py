@@ -78,7 +78,6 @@ class HGT(torch.nn.Module):
 
 def train():
     model.train()
-
     total_examples = total_loss = 0
     for batch in tqdm(train_loader):
         batch.to(device)
@@ -109,7 +108,7 @@ def test():
         pred = out.argmax(dim=1)
         correct = pred[:batch_size] == batch['paper'].y[:batch_size]
         accs = int(correct.sum()) / int(batch_size)
-        return accs
+    return accs
 
 
     return total_loss / total_examples
@@ -128,7 +127,7 @@ test_loader = NeighborLoader(
     # Sample 15 neighbors for each node and each edge type for 2 iterations:
     num_neighbors=[15] * 2,
     # Use a batch size of 128 for sampling training nodes of type "paper":
-    batch_size=128,
+    batch_size=64,
     input_nodes=('paper', data['paper'].test_mask),
 )
 
@@ -146,7 +145,8 @@ for i in range(1,numofep):
     loss = train()
     print(f"Current losso is: {loss}")
     loss_HeteroGNN.append(loss)
-    acc_HeteroGNN.append(test())
+    current_acc = test()
+    acc_HeteroGNN.append(current_acc)
 
 loss_HGT = []
 acc_HGT = []

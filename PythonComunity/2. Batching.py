@@ -66,6 +66,7 @@ from torch_geometric.loader import ClusterData, ClusterLoader
 torch.manual_seed(12345)
 cluster_data = ClusterData(data, num_parts=128)  # 1. Create subgraphs.
 train_loader = ClusterLoader(cluster_data, batch_size=32, shuffle=True)  # 2. Stochastic partioning scheme.
+
 print('===============================')
 print('===============================')
 print()
