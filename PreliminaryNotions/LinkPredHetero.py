@@ -91,8 +91,8 @@ print(data)
 transform = T.RandomLinkSplit(
     num_val=0.1,
     num_test=0.1,
-    disjoint_train_ratio=0.3,
-    neg_sampling_ratio=2.0,
+    #disjoint_train_ratio=0.3,
+    neg_sampling_ratio=1.0,
     add_negative_train_samples=False,
     edge_types=("user", "rates", "movie"),
     rev_edge_types=("movie", "rev_rates", "user"),
@@ -101,10 +101,13 @@ train_data, val_data, test_data = transform(data)
 
 print(data)
 print()
+print("Validation")
 print(val_data)
 print()
+print("Test")
 print(test_data)
 print()
+print("Train")
 print(train_data)
 print()
 
@@ -211,25 +214,6 @@ for epoch in range(1, 6):
         total_loss += float(loss) * pred.numel()
         total_examples += pred.numel()
     print(f"Epoch: {epoch:03d}, Loss: {total_loss / total_examples:.4f}")
-
-
-
-model = model.to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-for epoch in range(1, 6):
-    total_loss = total_examples = 0
-    for sampled_data in tqdm.tqdm(train_loader):
-        optimizer.zero_grad()
-        sampled_data.to(device)
-        pred = model(sampled_data)
-        ground_truth = sampled_data["user", "rates", "movie"].edge_label
-        loss = F.binary_cross_entropy_with_logits(pred, ground_truth)
-        loss.backward()
-        optimizer.step()
-        total_loss += float(loss) * pred.numel()
-        total_examples += pred.numel()
-    print(f"Epoch: {epoch:03d}, Loss: {total_loss / total_examples:.4f}")
-
 
 # Define the validation seed edges:
 edge_label_index = val_data["user", "rates", "movie"].edge_label_index
